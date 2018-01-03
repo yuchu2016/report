@@ -6,6 +6,8 @@ import com.octopus.report.common.ServerResponse;
 import com.octopus.report.dao.UserDao;
 import com.octopus.report.pojo.Param;
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +29,7 @@ import java.util.Map;
 @Api("/api")
 public class UserController {
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserDao userDao;
 
@@ -44,24 +47,10 @@ public class UserController {
             if(e instanceof JsonParseException){
                 return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
             }
+            log.error(e.getMessage());
             e.printStackTrace();
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ERROR.getCode(),e.getMessage());
         }
     }
-//
-//    @PostMapping("/test")
-//    public ServerResponse getAllUser(String sql, Map<String,String> map){
-//        try {
-//            return ServerResponse.createBySuccess(userDao.get(sql,map));
-//        }catch (Exception e){
-//            return ServerResponse.createByErrorMessage(e.getMessage());
-//        }
-//    }
-//    @PostMapping("/sql")
-//    public ServerResponse getParam(@ApiParam(required = true,name = "sql",value = "sql语句") String sql){
-//        Param param = n.ew Param();
-//        param.setSql(sql);
-//        param.setParams(new HashMap<>());
-//        return ServerResponse.createBySuccess(param);
-//    }
+
 }

@@ -30,14 +30,15 @@ import java.util.regex.Pattern;
 public class UserDao {
     @Autowired
     JdbcTemplate jdbcTemplate;
-
+    @Autowired
+    private RedisTemplate<String,List> redisTemplate;
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
 
     public List<Map> get(String sql,List<Object> paramsList) throws Exception{
 
-        log.info(paramsList.toString());
+        log.warn("参数为:{}",paramsList.toString());
 
-       // List<Object> paramsList = new ArrayList<>();
+        // List<Object> paramsList = new ArrayList<>();
 
 
 //        String regex = "(@([a-zA-Z]+))(,|\\s|$)";
@@ -53,9 +54,9 @@ public class UserDao {
 //            find = matcher.find();
 //        }
         Object[] params=paramsList.toArray(new Object[paramsList.size()]);
-        //String =matcher.group(1);
+//        String =matcher.group(1);
 //        sql = sql.replaceAll("WITH\\(NOLOCK\\)","");
-        log.info(sql);
+        log.warn("sql:{}",sql);
 
         SqlRowSet result= jdbcTemplate.queryForRowSet(sql,params);
         SqlRowSetMetaData sqlRsmd = result.getMetaData();
@@ -69,7 +70,6 @@ public class UserDao {
         while (result.next()){
             Map<String,Object> column = new HashMap<>();
             for (int i=1;i<=columnName.size();i++){
-                //System.out.println(columnName.get(i-1)+"-----"+result.getString(i));
                 column.put(columnName.get(i-1),result.getObject(i));
             }
             resultList.add(column);
@@ -79,29 +79,7 @@ public class UserDao {
 
     private void addRedis(String sql,List<Map> resultList){
         String key = DigestUtils.md5Hex(sql);
-
-
+        redisTemplate.opsForList().rightPush(key,resultList);
     }
-//    public List<Map> getAllUser(){
-//        String sql = "select username,password from tb_test  ";
-//        SqlRowSet result= jdbcTemplate.queryForRowSet(sql);
-//        SqlRowSetMetaData sqlRsmd = result.getMetaData();
-//        int columnCount = sqlRsmd.getColumnCount();
-//        List<String> columnName = new ArrayList<>();
-//        for (int i = 1; i <= columnCount; i++) {
-//            columnName.add(sqlRsmd.getColumnName(i));
-//        }
-//        List<Map> resultList = new ArrayList<>();
-//
-//        while (result.next()){
-//            Map<String,String> map = new HashMap<>();
-//            for (int i=1;i<=columnName.size();i++){
-//                System.out.println(columnName.get(i-1)+"-----"+result.getString(i));
-//                map.put(columnName.get(i-1),result.getString(i));
-//            }
-//            resultList.add(map);
-//        }
-//        return resultList;
-//    }
 
 }
