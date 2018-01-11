@@ -48,7 +48,7 @@ public class SwaggerConfig {
                 .title("Postgresql 查询Api")
                 .description("postgresql 查询Api")
                 .termsOfServiceUrl("http://192.168.22.27:8080/aoi/result")
-                .contact("hahaha")
+                .contact("octopus")
                 .version("1.0")
                 .build();
     }

@@ -23,23 +23,23 @@ public class UserDaoTest {
 
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String,List> redisTemplate;
 
 
     @Test
-    public void getAllUser() throws Exception{
+    public void redisTest() throws Exception{
         List<Map> list = new ArrayList<>();
         Map<String,String> map = new HashMap<>();
         map.put("k1","v1");
         map.put("k2","v2");
         Map<String,String> map2 = new HashMap<>();
-        map.put("k3","v3");
-        map.put("k4","v4");
+        map2.put("k3","v3");
+        map2.put("k4","v4");
         list.add(map);
         list.add(map2);
-        redisTemplate.opsForSet().add("title",list);
+        List result= redisTemplate.opsForList().index("title",0);
+        System.out.println(result);
 
-        System.out.println(redisTemplate.opsForValue().get("title"));
     }
 
 

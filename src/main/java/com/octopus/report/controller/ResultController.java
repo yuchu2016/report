@@ -3,7 +3,9 @@ package com.octopus.report.controller;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.octopus.report.common.ResponseCode;
 import com.octopus.report.common.ServerResponse;
-import com.octopus.report.dao.UserDao;
+import com.octopus.report.dao.DataDao;
+import com.octopus.report.dao.PageDao;
+import com.octopus.report.pojo.PageParam;
 import com.octopus.report.pojo.Param;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -13,9 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,12 +26,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @Api("/api")
-public class UserController {
+public class ResultController {
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(ResultController.class);
     @Autowired
-    private UserDao userDao;
-
+    private DataDao dataDao;
+    @Autowired
+    private PageDao pageDao;
 
     @ApiOperation(value = "获取结果")
     @ApiImplicitParams({
@@ -42,7 +42,24 @@ public class UserController {
     @PostMapping("/result")
     public ServerResponse result(@RequestBody Param param){
         try {
-            return ServerResponse.createBySuccess(userDao.get(param.getSql(),param.getParam()));
+            return ServerResponse.createBySuccess(dataDao.get(param.getSql(),param.getParam()));
+        }catch (Exception e){
+            if(e instanceof JsonParseException){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+            }
+            log.error(e.getMessage());
+            e.printStackTrace();
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ERROR.getCode(),e.getMessage());
+        }
+    }
+    @ApiOperation(value = "获取分页结果")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageParam", value = "参数类", required = true, dataType = "PageParam"),
+    })
+    @PostMapping("/pageResult")
+    public ServerResponse pageResult(@RequestBody PageParam pageParam){
+        try {
+            return ServerResponse.createBySuccess(pageDao.getPageInfo(pageParam.getSql(),pageParam.getParam(),pageParam.getPageNum(),pageParam.getPageSize()));
         }catch (Exception e){
             if(e instanceof JsonParseException){
                 return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
